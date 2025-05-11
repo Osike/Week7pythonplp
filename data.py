@@ -1,79 +1,98 @@
 import pandas as pd
-
 import seaborn as sns
+import matplotlib.pyplot as plt
 
-# Example seaborn style
+# Set seaborn style
 sns.set(style='whitegrid')
-
 
 # Load the dataset
 try:
-    df = pd.read_csv('path_to_your_dataset.csv')
+    df = pd.read_csv('sales_data.csv')
+    print("File loaded successfully.\n")
 except FileNotFoundError:
     print("File not found. Please check the path.")
+    exit()
 
 # Display the first few rows
+print("First 5 rows of the dataset:")
 print(df.head())
 
 # Check data types and missing values
+print("\nDataset information:")
 print(df.info())
+print("\nMissing values per column:")
 print(df.isnull().sum())
 
-# Display the first few rows
-print(df.head())
+# Since there are no missing values in this dataset, no filling is needed
 
-# Check data types and missing values
-print(df.info())
-print(df.isnull().sum())
-
-# Fill or drop missing values
-df.fillna(method='ffill', inplace=True)  # Example to forward fill
-
-# task 2
-# Describe numerical columns
+# Task 2: Descriptive statistics
+print("\nDescriptive statistics for numerical columns:")
 print(df.describe())
 
-# Example grouping by species
-grouped = df.groupby('species').mean()
-print(grouped)
+# Grouping by Category
+grouped_category = df.groupby('Category').mean(numeric_only=True)
+print("\nAverage values by product category:")
+print(grouped_category)
+
+# Grouping by Region
+grouped_region = df.groupby('Region').mean(numeric_only=True)
+print("\nAverage values by region:")
+print(grouped_region)
 
 # Example observation
-# "The average petal length of species A is higher than species B."
+print("\nObservations:")
+print("1. Electronics have the highest average unit price and total sales.")
+print("2. The West region has the highest average unit price due to expensive items like TVs being sold there.")
 
-# task 3
-import matplotlib.pyplot as plt
+# Task 3: Visualizations
 
-# Example: Time-series data
-plt.figure(figsize=(10, 5))
-plt.plot(df['date'], df['sales'], marker='o')
-plt.title('Sales Over Time')
+# 1. Time-series of Total Sales
+plt.figure(figsize=(12, 6))
+plt.plot(df['Date'], df['TotalSales'], marker='o', linestyle='-', color='b')
+plt.title('Total Sales Over Time')
 plt.xlabel('Date')
-plt.ylabel('Sales')
+plt.ylabel('Total Sales ($)')
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
 
-# Average petal length per species
-df.groupby('species')['petal_length'].mean().plot(kind='bar', color='skyblue')
-plt.title('Average Petal Length by Species')
-plt.xlabel('Species')
-plt.ylabel('Average Petal Length')
+# 2. Sales by Category
+plt.figure(figsize=(10, 6))
+df.groupby('Category')['TotalSales'].sum().sort_values().plot(kind='barh', color='skyblue')
+plt.title('Total Sales by Product Category')
+plt.xlabel('Total Sales ($)')
+plt.ylabel('Category')
 plt.show()
 
-# Histogram of petal length
-plt.figure(figsize=(8, 5))
-df['petal_length'].hist(bins=20, color='purple', alpha=0.7)
-plt.title('Distribution of Petal Length')
-plt.xlabel('Petal Length')
-plt.ylabel('Frequency')
+# 3. Quantity Sold by Product
+plt.figure(figsize=(10, 6))
+df.groupby('Product')['Quantity'].sum().sort_values().plot(kind='barh', color='purple')
+plt.title('Total Quantity Sold by Product')
+plt.xlabel('Quantity Sold')
+plt.ylabel('Product')
 plt.show()
 
-# Scatter plot 
-
-plt.figure(figsize=(8, 5))
-plt.scatter(df['sepal_length'], df['petal_length'], alpha=0.5)
-plt.title('Sepal Length vs Petal Length')
-plt.xlabel('Sepal Length')
-plt.ylabel('Petal Length')
+# 4. Sales Distribution by Region
+plt.figure(figsize=(8, 6))
+df.groupby('Region')['TotalSales'].sum().plot(kind='pie', autopct='%1.1f%%', colors=['gold', 'lightcoral', 'lightskyblue', 'lightgreen'])
+plt.title('Sales Distribution by Region')
+plt.ylabel('')
 plt.show()
 
+# 5. Scatter plot of Quantity vs Unit Price
+plt.figure(figsize=(8, 6))
+plt.scatter(df['Quantity'], df['UnitPrice'], alpha=0.6, color='green')
+plt.title('Quantity Sold vs Unit Price')
+plt.xlabel('Quantity Sold')
+plt.ylabel('Unit Price ($)')
+plt.grid(True)
+plt.show()
+
+# 6. Boxplot of Total Sales by Category
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='Category', y='TotalSales', data=df, palette='Set2')
+plt.title('Distribution of Total Sales by Category')
+plt.xlabel('Category')
+plt.ylabel('Total Sales ($)')
+plt.xticks(rotation=45)
+plt.show()
